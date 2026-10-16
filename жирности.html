@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Питомник жирностей</title>
+
+<style>
+:root {
+    --pink: #f4b8cf;
+    --light: #fff0f5;
+    --dark: #70435c;
+    --cream: #fffaf0;
+    --green: #d8e9c6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--light);
+    color: var(--dark);
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+header {
+    text-align: center;
+    padding: 25px 12px;
+    background: var(--pink);
+    border-bottom: 4px dotted white;
+}
+
+header h1 {
+    margin: 0;
+    font-size: clamp(25px, 6vw, 42px);
+}
+
+header p {
+    margin-bottom: 0;
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px 8px;
+}
+
+button, select, input {
+    font: inherit;
+}
+
+button {
+    border: 2px solid #e8a4bf;
+    background: white;
+    color: var(--dark);
+    padding: 10px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: .15s;
+}
+
+button:hover {
+    background: #ffe0ec;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 12px;
+}
+
+.panel {
+    background: var(--cream);
+    border: 2px solid #f1cada;
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 18px;
+}
+
+.panel h2 {
+    margin-top: 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.card {
+    background: white;
+    border: 2px solid #f2d5e1;
+    border-radius: 18px;
+    padding: 12px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.card img {
+    width: 100%;
+    height: 170px;
+    object-fit: contain;
+    background: #fff5f8;
+    border-radius: 12px;
+}
+
+.card h3 {
+    margin: 10px 0 5px;
+}
+
+.card p {
+    margin: 7px 0;
+}
+
+.meter {
+    background: #f1dce5;
+    border-radius: 20px;
+    height: 13px;
+    overflow: hidden;
+    margin: 6px 0 10px;
+}
+
+.meter div {
+    height: 100%;
+    background: #e99bbb;
+    transition: width .3s;
+}
+
+.house {
+    padding: 15px;
+    background: var(--green);
+    border-radius: 18px;
+    margin-bottom: 10px;
+}
+
+.house.selected {
+    outline: 3px solid #d38aaa;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #edc5d6;
+    border-radius: 12px;
+    background: white;
+    color: var(--dark);
+}
+
+input[type="file"] {
+    display: block;
+    max-width: 100%;
+    margin: 8px 0;
+}
+
+.form {
+    max-width: 450px;
+}
+
+.hidden {
+    display: none;
+}
+
+.notice {
+    background: #fff0c9;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    opacity: .8;
+}
+
+@media (max-width: 500px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .card {
+        padding: 8px;
+    }
+
+    .card img {
+        height: 125px;
+    }
+
+    .card button {
+        padding: 8px;
+        font-size: 13px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>୨୧ Питомник жирностей ୨୧</h1>
+    <p>Маленькие создания. Большие аппетиты.</p>
+</header>
+
+<nav>
+    <button onclick="showPage('nursery')">🐷 Мои жирности</button>
+    <button onclick="showPage('food')">🍰 Кухня</button>
+    <button onclick="showPage('houses')">🏠 Домики</button>
+    <button onclick="showPage('add')">＋ Новая жирность</button>
+</nav>
+
+<main>
+
+<section id="nursery" class="page">
+    <div class="panel">
+        <h2>♡ Наши питомцы</h2>
+        <p>Каждая жирность заслуживает собственного домика и вкусняшек.</p>
+        <div id="pets" class="grid"></div>
+    </div>
+</section>
+
+<section id="food" class="page hidden">
+    <div class="panel">
+        <h2>🍓 Кухня питомника</h2>
+
+        <div class="form">
+            <h3>Добавить блюдо</h3>
+
+            <label>Название еды</label>
+            <input id="foodName" type="text"
+                   placeholder="Например, сырный тортик">
+
+            <label>Фотография еды</label>
+            <input id="foodImage" type="file" accept="image/*">
+
+            <label>Тип блюда</label>
+            <select id="foodType">
+                <option value="sweet">🍰 Сладкое</option>
+                <option value="salty">🧀 Солёное</option>
+                <option value="fruit">🍓 Фрукты и овощи</option>
+                <option value="special">✨ Особенное</option>
+            </select>
+
+            <button onclick="addFood()">Приготовить!</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>🍽️ Меню</h2>
+        <div id="foods" class="grid"></div>
+    </div>
+</section>
+
+<section id="houses" class="page hidden">
+    <div class="panel">
+        <h2>🏡 Агентство недвижимости для жирностей</h2>
+        <p>Выбери жирность, а затем подбери ей жильё.</p>
+
+        <label>Кто будет жить в домике?</label>
+        <select id="housePet" onchange="renderHouses()"></select>
+
+        <div id="housesList" class="grid"></div>
+    </div>
+</section>
+
+<section id="add" class="page hidden">
+    <div class="panel">
+        <h2>🐷 Регистрация новой жирности</h2>
+
+        <div class="form">
+            <label>Имя жирности</label>
+            <input id="petName" type="text" placeholder="Сырочек">
+
+            <label>Фотография жирности</label>
+            <input id="petImage" type="file" accept="image/*">
+
+            <label>Характер</label>
+            <select id="petPersonality">
+                <option>Милашка</option>
+                <option>Ворчун</option>
+                <option>Обжора</option>
+                <option>Соня</option>
+                <option>Хаос на ножках</option>
+            </select>
+
+            <button onclick="addPet()">Поселить жирность ♡</button>
+        </div>
+    </div>
+</section>
+
+<section id="care" class="page hidden">
+    <div class="panel" id="carePanel"></div>
+</section>
+
+</main>
+
+<footer>
+    Сделано с любовью к жирностям ♡
+</footer>
+
+<script>
+const STORAGE_KEY = "krik_zhirnosti_v1";
+
+let state = {
+    pets: [],
+    foods: [],
+    selectedPet: null
+};
+
+const houses = [
+    {
+        id: "box",
+        name: "📦 Картонная коробка",
+        description: "Эконом-класс. Зато уютно."
+    },
+    {
+        id: "basket",
+        name: "🧺 Плетёная корзинка",
+        description: "Для маленьких аристократов."
+    },
+    {
+        id: "garden",
+        name: "🌷 Садовый домик",
+        description: "Пахнет цветочками и спокойствием."
+    },
+    {
+        id: "castle",
+        name: "🏰 Жирный дворец",
+        description: "Королевские хоромы."
+    },
+    {
+        id: "cheese",
+        name: "🧀 Сырная резиденция",
+        description: "Архитектурное преступление."
+    }
+];
+
+function loadState() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+            const parsed = JSON.parse(saved);
+
+            state.pets = parsed.pets || [];
+            state.foods = parsed.foods || [];
+        }
+    } catch (error) {
+        console.error("Не удалось загрузить сохранение", error);
+    }
+}
+
+function saveState() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+        alert(
+            "Не удалось сохранить игру. Возможно, фотографии " +
+            "занимают слишком много места. Попробуй изображения поменьше."
+        );
+    }
+}
+
+function makeId() {
+    return Date.now().toString(36) +
+        Math.random().toString(36).slice(2, 8);
+}
+
+function readImage(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            reject(new Error("Сначала выбери фотографию!"));
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            reject(new Error("Нужен файл изображения."));
+            return;
+        }
+
+        // Уменьшаем фотографию, чтобы экономить место в сохранении.
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+
+        img.onload = () => {
+            const maxSize = 700;
+            const scale = Math.min(
+                1,
+                maxSize / Math.max(img.width, img.height)
+            );
+
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            URL.revokeObjectURL(url);
+
+            resolve(canvas.toDataURL("image/jpeg", 0.78));
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error("Не получилось открыть фотографию."));
+        };
+
+        img.src = url;
+    });
+}
+
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.add("hidden");
+    });
+
+    document.getElementById(id).classList.remove("hidden");
+
+    if (id === "nursery") renderPets();
+    if (id === "food") renderFoods();
+    if (id === "houses") {
+        renderPetSelector();
+        renderHouses();
+    }
+}
+
+async function addPet() {
+    const name = document.getElementById("petName").value.trim();
+    const file = document.getElementById("petImage").files[0];
+    const personality =
+        document.getElementById("petPersonality").value;
+
+    if (!name) {
+        alert("Жирности нужно имя!");
+        return;
+    }
+
+    try {
+        const image = await readImage(file);
+
+        state.pets.push({
+            id: makeId(),
+            name,
+            image,
+            personality,
+            hunger: 30,
+            happiness: 70,
+            energy: 70,
+            house: "box",
+            meals: 0,
+            lastFed: Date.now()
+        });
+
+        saveState();
+
+        document.getElementById("petName").value = "";
+        document.getElementById("petImage").value = "";
+
+        showPage("nursery");
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+function meter(label, value) {
+    value = Math.max(0, Math.min(100, value));
+
+    return `
+        <p>${label}: ${Math.round(value)}%</p>
+        <div class="meter">
+            <div style="width:${value}%"></div>
+        </div>
+    `;
+}
+
+function renderPets() {
+    const container = document.getElementById("pets");
+
+    if (!state.pets.length) {
+        container.innerHTML = `
+            <div class="card">
+                <h3>Питомник пустует...</h3>
+                <p>Первой жирности срочно нужен дом!</p>
+                <button onclick="showPage('add')">
+                    Зарегистрировать ♡
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = state.pets.map(pet => `
+        <article class="card">
+            <img src="${pet.image}" alt="Жирность">
+            <h3>${escapeHTML(pet.name)}</h3>
+            <p>♡ ${escapeHTML(pet.personality)}</p>
+            <p>🏠 ${houseName(pet.house)}</p>
+
+            ${meter("Сытость", 100 - pet.hunger)}
+            ${meter("Счастье", pet.happiness)}
+            ${meter("Энергия", pet.energy)}
+
+            <button onclick="openCare('${pet.id}')">
+                Ухаживать
+            </button>
+            <button onclick="renamePet('${pet.id}')">
+                Переименовать
+            </button>
+            <button onclick="removePet('${pet.id}')">
+                Удалить
+            </button>
+        </article>
+    `).join("");
+}
+
+function openCare(id) {
+    state.selectedPet = id;
+
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+
+    const panel = document.getElementById("carePanel");
+
+    panel.innerHTML = `
+        <h2>♡ ${escapeHTML(pet.name)}</h2>
+
+        <div class="grid">
+            <div>
+                <img src="${pet.image}"
+                     alt="Жирность"
+                     style="width:100%;max-height:280px;object-fit:contain">
+            </div>
+
+            <div>
+                <h3>${escapeHTML(pet.personality)}</h3>
+                <p>🏠 Домик: ${houseName(pet.house)}</p>
+                <p>🍽️ Всего приёмов пищи: ${pet.meals}</p>
+
+                ${meter("Сытость", 100 - pet.hunger)}
+                ${meter("Счастье", pet.happiness)}
+                ${meter("Энергия", pet.energy)}
+
+                <button onclick="showPage('food')">
+                    🍓 Покормить
+                </button>
+
+                <button onclick="restPet('${pet.id}')">
+                    💤 Отдохнуть
+                </button>
+
+                <button onclick="petPet('${pet.id}')">
+                    💗 Погладить
+                </button>
+
+                <button onclick="showPage('houses')">
+                    🏠 Сменить домик
+                </button>
+            </div>
+        </div>
+
+        <div class="notice">
+            Совет питомника: обращай внимание на настроение
+            и не забывай про отдых!
+        </div>
+
+        <button onclick="showPage('nursery')">
+            ← К остальным жирностям
+        </button>
+    `;
+
+    showPage("care");
+    // showPage не перерисовывает carePanel, поэтому карточка сохраняется.
+}
+
+async function addFood() {
+    const name = document.getElementById("foodName").value.trim();
+    const file = document.getElementById("foodImage").files[0];
+    const type = document.getElementById("foodType").value;
+
+    if (!name) {
+        alert("У блюда должно быть название!");
+        return;
+    }
+
+    try {
+        const image = await readImage(file);
+
+        state.foods.push({
+            id: makeId(),
+            name,
+            image,
+            type
+        });
+
+        saveState();
+
+        document.getElementById("foodName").value = "";
+        document.getElementById("foodImage").value = "";
+
+        renderFoods();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+const foodEffects = {
+    sweet:  { hunger: 22, happiness: 12, energy: 5 },
+    salty:  { hunger: 20, happiness: 7,  energy: 3 },
+    fruit:  { hunger: 16, happiness: 8,  energy: 12 },
+    special:{ hunger: 28, happiness: 18, energy: 10 }
+};
+
+function renderFoods() {
+    const container = document.getElementById("foods");
+
+    if (!state.foods.length) {
+        container.innerHTML = `
+            <div class="card">
+                <h3>Кухня пока пуста!</h3>
+                <p>Добавь фотографии любимых вкусняшек.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = state.foods.map(food => `
+        <article class="card">
+            <img src="${food.image}" alt="Еда">
+            <h3>${escapeHTML(food.name)}</h3>
+            <p>${foodEmoji(food.type)}</p>
+            <button onclick="feedPet('${food.id}')">
+                Накормить жирность
+            </button>
+            <button onclick="removeFood('${food.id}')">
+                Убрать из меню
+            </button>
+        </article>
+    `).join("");
+}
+
+function feedPet(foodId) {
+    if (!state.pets.length) {
+        alert("Сначала заведи хотя бы одну жирность!");
+        return;
+    }
+
+    const food = state.foods.find(f => f.id === foodId);
+    if (!food) return;
+
+    let pet = state.pets.find(p => p.id === state.selectedPet);
+
+    if (!pet) {
+        const choice = prompt(
+            "Кого кормим?\n" +
+            state.pets.map((p, i) => `${i + 1}. ${p.name}`).join("\n") +
+            "\n\nВведи номер жирности:"
+        );
+
+        const index = Number(choice) - 1;
+        pet = state.pets[index];
+    }
+
+    if (!pet) return;
+
+    const effects = foodEffects[food.type];
+
+    pet.hunger = Math.max(0, pet.hunger - effects.hunger);
+    pet.happiness = Math.min(100, pet.happiness + effects.happiness);
+    pet.energy = Math.min(100, pet.energy + effects.energy);
+    pet.meals++;
+    pet.lastFed = Date.now();
+
+    saveState();
+
+    alert(
+        `${pet.name} съела "${food.name}"!\n\n` +
+        "Ням-ням! Жирность довольна. ♡"
+    );
+
+    openCare(pet.id);
+}
+
+function petPet(id) {
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+
+    pet.happiness = Math.min(100, pet.happiness + 12);
+    saveState();
+    openCare(id);
+}
+
+function restPet(id) {
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+
+    pet.energy = Math.min(100, pet.energy + 20);
+    pet.happiness = Math.min(100, pet.happiness + 3);
+
+    saveState();
+    openCare(id);
+}
+
+function renderPetSelector() {
+    const select = document.getElementById("housePet");
+    const previous = select.value;
+
+    select.innerHTML = state.pets.map(pet => `
+        <option value="${pet.id}">
+            ${escapeHTML(pet.name)}
+        </option>
+    `).join("");
+
+    if (state.pets.some(p => p.id === previous)) {
+        select.value = previous;
+    }
+}
+
+function houseName(id) {
+    return houses.find(h => h.id === id)?.name || "📦 Коробка";
+}
+
+function renderHouses() {
+    const container = document.getElementById("housesList");
+    const petId = document.getElementById("housePet").value;
+    const pet = state.pets.find(p => p.id === petId);
+
+    if (!pet) {
+        container.innerHTML = "<p>Сначала зарегистрируй жирность!</p>";
+        return;
+    }
+
+    container.innerHTML = houses.map(house => `
+        <article class="house ${
+            pet.house === house.id ? "selected" : ""
+        }">
+            <h3>${house.name}</h3>
+            <p>${house.description}</p>
+            <button onclick="chooseHouse('${pet.id}','${house.id}')">
+                ${pet.house === house.id ? "Уже живёт здесь ♡" : "Поселиться"}
+            </button>
+        </article>
+    `).join("");
+}
+
+function chooseHouse(petId, houseId) {
+    const pet = state.pets.find(p => p.id === petId);
+    if (!pet) return;
+
+    pet.house = houseId;
+    pet.happiness = Math.min(100, pet.happiness + 5);
+
+    saveState();
+    renderHouses();
+}
+
+function renamePet(id) {
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+
+    const name = prompt("Новое имя жирности:", pet.name);
+
+    if (name && name.trim()) {
+        pet.name = name.trim();
+        saveState();
+        renderPets();
+    }
+}
+
+function removePet(id) {
+    const pet = state.pets.find(p => p.id === id);
+    if (!pet) return;
+
+    if (!confirm(`Точно удалить жирность ${pet.name}?`)) return;
+
+    state.pets = state.pets.filter(p => p.id !== id);
+
+    if (state.selectedPet === id) {
+        state.selectedPet = null;
+    }
+
+    saveState();
+    renderPets();
+}
+
+function removeFood(id) {
+    if (!confirm("Убрать это блюдо из меню?")) return;
+
+    state.foods = state.foods.filter(f => f.id !== id);
+    saveState();
+    renderFoods();
+}
+
+function foodEmoji(type) {
+    return {
+        sweet: "🍰 Сладкое",
+        salty: "🧀 Солёное",
+        fruit: "🍓 Фрукты и овощи",
+        special: "✨ Особенное блюдо"
+    }[type] || "🍽️";
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    }[char]));
+}
+
+loadState();
+renderPets();
+</script>
+
+</body>
+</html>
